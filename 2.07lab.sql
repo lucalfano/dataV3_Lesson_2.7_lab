@@ -7,24 +7,22 @@ on f.category_id = c.category_id
 group by c.category_id;
 
 -- 2 Display the total amount rung up by each staff member in August of 2005.
-select rental_date, count(staff_id), rental_id
-from sakila.rental
-where rental_date > 2005-08-00 or rental_date < 2005-08-31
-group by staff_id, rental_date;
 
-select rental_date, count(rental_id), staff_id
-from sakila.rental
-where rental_date between 2005-08-00 and 2005-08-31
-group by staff_id, rental_date;
-
-select rental_date from sakila.rental;
+select s.staff_id, concat(s.first_name, ' ', s.last_name) as employee, sum(p.amount) as `total amount`
+from sakila.staff as s
+inner join sakila.payment as p on s.staff_id = p.staff_id
+where month(p.payment_date) = 8 and year(p.payment_date) = 2005
+group by s.staff_id;
 
 -- 3 Which actor has appeared in the most films?
-select f.actor_id, count(a.actor_id)
-from sakila.actor a
-join sakila.film_actor f
-on a.actor_id = f.actor_id
-order by count(a.actor_id);
+
+select actor.actor_id, actor.first_name, actor.last_name, count(actor_id) as film_count
+from sakila.actor
+join sakila.film_actor using (actor_id)
+group by actor_id
+order by film_count desc
+limit 1;
+
 
 -- 4 Most active customer (the customer that has rented the most number of films)
 select c.customer_id as 'customer_id', c.first_name, c.last_name, count(r.rental_id) as 'number of rentals'
